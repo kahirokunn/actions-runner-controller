@@ -48,7 +48,7 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/part-of: gha-rs-controller
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- range $k, $v := .Values.labels }}
-{{ $k }}: {{ $v }}
+{{ $k }}: {{ $v | quote }}
 {{- end }}
 {{- end }}
 
@@ -125,8 +125,4 @@ Create the name of the service account to use
   {{- $names = append $names $v.name }}
 {{- end }}
 {{- $names | join ","}}
-{{- end }}
-
-{{- define "gha-runner-scale-set-controller.serviceMonitorName" -}}
-{{- include "gha-runner-scale-set-controller.fullname" . }}-service-monitor
 {{- end }}

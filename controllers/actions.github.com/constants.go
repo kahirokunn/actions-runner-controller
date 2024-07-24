@@ -2,7 +2,6 @@ package actionsgithubcom
 
 import (
 	"github.com/actions/actions-runner-controller/logging"
-	corev1 "k8s.io/api/core/v1"
 )
 
 const (
@@ -40,7 +39,11 @@ const (
 // Finalizer used to protect resources from deletion while AutoscalingRunnerSet is running
 const AutoscalingRunnerSetCleanupFinalizerName = "actions.github.com/cleanup-protection"
 
-const AnnotationKeyGitHubRunnerGroupName = "actions.github.com/runner-group-name"
+const (
+	AnnotationKeyGitHubRunnerGroupName    = "actions.github.com/runner-group-name"
+	AnnotationKeyGitHubRunnerScaleSetName = "actions.github.com/runner-scale-set-name"
+	AnnotationKeyPatchID                  = "actions.github.com/patch-id"
+)
 
 // Labels applied to listener roles
 const (
@@ -59,10 +62,6 @@ const (
 	AnnotationKeyNoPermissionServiceAccountName   = "actions.github.com/cleanup-no-permission-service-account-name"
 )
 
-// DefaultScaleSetListenerImagePullPolicy is the default pull policy applied
-// to the listener when ImagePullPolicy is not specified
-const DefaultScaleSetListenerImagePullPolicy = corev1.PullIfNotPresent
-
 // DefaultScaleSetListenerLogLevel is the default log level applied
 const DefaultScaleSetListenerLogLevel = string(logging.LogLevelDebug)
 
@@ -71,3 +70,9 @@ const DefaultScaleSetListenerLogFormat = string(logging.LogFormatText)
 
 // ownerKey is field selector matching the owner name of a particular resource
 const resourceOwnerKey = ".metadata.controller"
+
+// EphemeralRunner pod creation failure reasons
+const (
+	ReasonTooManyPodFailures = "TooManyPodFailures"
+	ReasonInvalidPodFailure  = "InvalidPod"
+)

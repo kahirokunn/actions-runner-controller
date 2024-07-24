@@ -27,6 +27,9 @@ spec:
         app.kubernetes.io/component: controller-manager
         app.kubernetes.io/version: {{ .Chart.Version }}
         {{- include "gha-runner-scale-set-controller.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -76,6 +79,9 @@ spec:
         - "--listener-metrics-endpoint="
         - "--metrics-addr=0"
         {{- end }}
+        {{- range .Values.flags.excludeLabelPropagationPrefixes }}
+        - "--exclude-label-propagation-prefix={{ . }}"
+        {{- end }}
         command:
         - "/manager"
         {{- with .Values.metrics }}
@@ -91,8 +97,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        - name: CONTROLLER_MANAGER_LISTENER_IMAGE_PULL_POLICY
-          value: "{{ .Values.image.pullPolicy | default "IfNotPresent" }}"
         {{- with .Values.env }}
           {{- if kindIs "slice" . }}
             {{- toYaml . | nindent 8 }}
@@ -109,16 +113,26 @@ spec:
         volumeMounts:
         - mountPath: /tmp
           name: tmp
+        {{- range .Values.volumeMounts }}
+        - {{ toYaml . | nindent 10 }}
+        {{- end }}
       terminationGracePeriodSeconds: 10
       volumes:
       - name: tmp
         emptyDir: {}
+      {{- range .Values.volumes }}
+      - {{ toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.affinity }}
       affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.tolerations }}
